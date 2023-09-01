@@ -1,4 +1,7 @@
+"use client"
 import './globals.css'
+import {ThemeProvider} from "next-themes";
+
 
 export const metadata = {
   title: 'Create Next App',
@@ -13,8 +16,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <main className="min-h-screen bg-background flex flex-col items-center">
+        <main className="min-h-screen w-screen bg-blue-950">
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {children}
+          </ThemeProvider>
         </main>
       </body>
     </html>
