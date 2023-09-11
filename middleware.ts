@@ -16,11 +16,13 @@ export async function middleware(req: NextRequest) {
     data: { session },
   } = await supabase.auth.getSession();
 
-  if (!session && pathName === "/") {
-    const url = new URL(req.url);
-    url.pathname = "/login";
-    return NextResponse.redirect(url);
-  }
+  console.log("session server", session);
+
+  // if (!session && pathName === "/") {
+  //   const url = new URL(req.url);
+  //   url.pathname = "/login";
+  //   return NextResponse.redirect(url);
+  // }
 
   return res;
 }
