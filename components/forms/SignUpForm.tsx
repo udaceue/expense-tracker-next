@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,11 +13,18 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { DevTool } from "@hookform/devtools";
-
+import { useSupabaseAuth } from "@/components/providers/supabase-auth-provider";
+import { useRouter } from "next/navigation";
 function SignUpForm() {
+  const [errorAlert, setErrorAlert] = useState({
+    error: false,
+    message: "",
+  });
+  const { signUpWithEmail } = useSupabaseAuth();
+  const router = useRouter();
+
   const formSchema = z
     .object({
       name: z.string().trim().min(2, {
@@ -26,8 +33,8 @@ function SignUpForm() {
       surname: z.string().trim().min(2, {
         message: "Username must be at least 4 characters.",
       }),
-      username: z.string().trim().min(2, {
-        message: "Username must be at least 4 characters.",
+      email: z.coerce.string().email().min(5, {
+        message: "Email must be at least 5 characters.",
       }),
       age: z.coerce
         .number({
@@ -57,16 +64,35 @@ function SignUpForm() {
     defaultValues: {
       name: "",
       surname: "",
-      username: "",
+      email: "",
       password: "",
     },
   });
   const { control } = form;
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     // ✅ This will be type-safe and validated.
-    console.log(values);
+    try {
+      const { data, error } = await signUpWithEmail(
+        values.email,
+        values.password,
+        {
+          data: {
+            first_name: values.name,
+            age: values.age,
+          },
+        },
+      );
+      // @ts-ignore
+      if (error) {
+        setErrorAlert({ error: true, message: error });
+        setTimeout(() => {
+          setErrorAlert({ error: false, message: "" });
+        }, 3000);
+        return;
+      }
+      router.push("register/confirmation");
+    } catch (error) {}
   }
 
   return (
@@ -101,16 +127,15 @@ function SignUpForm() {
           />
           <FormField
             control={form.control}
-            name="username"
+            name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Username</FormLabel>
+                <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input placeholder="Username" {...field} />
+                  <Input placeholder="Email" {...field} />
                 </FormControl>
-                <FormDescription>
-                  This is your public display name.
-                </FormDescription>
+                {/*<FormDescription>*/}
+                {/*</FormDescription>*/}
                 <FormMessage />
               </FormItem>
             )}
@@ -164,13 +189,12 @@ function SignUpForm() {
               </FormItem>
             )}
           />
-          <div className={"flex justify-between"}>
-            <Link href="/register">
-              <Button variant={"secondaryButton"} type={"submit"}>
-                Sign Up
-              </Button>
-            </Link>
-            <Button variant={"secondaryButton"} type={"submit"}>
+          <div>
+            <Button
+              variant={"secondaryButton"}
+              className={"w-full"}
+              type={"submit"}
+            >
               Sign In
             </Button>
           </div>

@@ -3,6 +3,7 @@ import Image from "next/image";
 import logo from "@/assets/images/logo.png";
 import ThemeSwitcher from "@/components/theme/ThemeSwitcher";
 import SignUpForm from "@/components/forms/SignUpForm";
+import Link from "next/link";
 
 function Page() {
   return (
@@ -29,13 +30,15 @@ function Page() {
           <div className={"mt-4 mb-4"}>
             <p className={"text-sm"}>
               Do you already have account?
-              <span
-                className={
-                  "text-blue-600 hover:text-blue-800 cursor-pointer font-semibold"
-                }
-              >
-                Sign In
-              </span>
+              <Link href={"/login"}>
+                <span
+                  className={
+                    "text-blue-600 hover:text-blue-800 cursor-pointer font-semibold"
+                  }
+                >
+                  Sign In
+                </span>
+              </Link>
             </p>
           </div>
           <ThemeSwitcher></ThemeSwitcher>
